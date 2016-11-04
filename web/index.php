@@ -40,19 +40,15 @@
  *
  * Portions Copyrighted 2011 Sun Microsystems, Inc.
  */
-
 /**
  * Main application class.
  */
 final class Index {
-
     const DEFAULT_PAGE = 'home';
     const DEFAULT_MODULE = 'home';
     const PAGE_DIR = '../page/';
     const LAYOUT_DIR = '../layout/';
     private $module;
-
-
     /**
      * System config.
      */
@@ -63,16 +59,15 @@ final class Index {
         set_exception_handler(array($this, 'handleException'));
         spl_autoload_register(array($this, 'loadClass'));
         // session
+        
         session_start();
     }
-
     /**
      * Run the application!
      */
     public function run() {
         $this->runPage($this->getPage());
     }
-
     /**
      * Exception handler.
      */
@@ -87,7 +82,6 @@ final class Index {
             $this->runErrorPage('404', $extra);           
         }
     }
-
     /**
      * Class loader.
      */
@@ -99,6 +93,7 @@ final class Index {
             'NotFoundException' => '../exception/NotFoundException.php',
             'TodoDao' => '../dao/TodoDao.php',
             'BookingDao' => '../dao/BookingDao.php',
+            'UserDao' => '../dao/UserDao.php',
             'TodoMapper' => '../mapping/TodoMapper.php',
             'UserMapper' => '../mapping/UserMapper.php',
             'BookingMapper' => '../mapping/BookingMapper.php',
@@ -106,7 +101,8 @@ final class Index {
             'User' => '../model/User.php',
             'Booking' => '../model/Booking.php',
             'TodoSearchCriteria' => '../dao/TodoSearchCriteria.php',
-            'TodoValidator' => '../validation/TodoValidator.php',
+            'BookingValidator' => '../validation/BookingValidator.php',
+             'UserValidator' => '../validation/UserValidator.php',
             'Utils' => '../util/Utils.php',
             'HeadTemplate' => '../layout/HeadTemplate.php'
         );
@@ -115,7 +111,6 @@ final class Index {
         }
         require_once $classes[$name];
     }
-
     private function getPage() {
         $page = self::DEFAULT_PAGE;
         $this->module = self::DEFAULT_MODULE;
@@ -127,7 +122,6 @@ final class Index {
         }
         return $this->checkPage($page);
     }
-
     private function checkPage($page) {
         if (!preg_match('/^[a-z0-9-]+$/i', $page)) {
             // TODO log attempt, redirect attacker, ...
@@ -147,7 +141,6 @@ final class Index {
         $flashes = null;
         require self::LAYOUT_DIR . 'index.phtml';
     }
-
     private function runPage($page, array $extra = array()) {
         $run = false;
         if ($this->hasScript($page)) {
@@ -162,7 +155,6 @@ final class Index {
             if (Flash::hasFlashes()) {
                 $flashes = Flash::getFlashes();
             }
-
             // main template (layout)
             require self::LAYOUT_DIR . 'index.phtml';
         }
@@ -170,26 +162,19 @@ final class Index {
             die('Page "' . $page . '" has neither script nor template!');
         }
     }
-
     private function getScript($page) {
-        //if($page === '404' && $page === '')
         return self::PAGE_DIR . $this->module . '/' . $page . '-ctrl.php';
     }
-
     private function getTemplate($page) {
         return self::PAGE_DIR  . $this->module . '/' . $page . '-view.php';
     }
-
     private function hasScript($page) {
         return file_exists($this->getScript($page));
     }
-
     private function hasTemplate($page) {
         return file_exists($this->getTemplate($page));
     }
-
 }
-
 $index = new Index();
 $index->init();
 // run application!

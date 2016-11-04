@@ -41,47 +41,40 @@
  * Portions Copyrighted 2011 Sun Microsystems, Inc.
  */
 $headTemplate = new HeadTemplate('Add/Edit | TodoList', 'Edit or add a booking');
-
-//$template = new Template();
-//$template->setTitle('Add/Edit | TodoList');
-//$template->setDescription('Edit or add a Todo');
-
 $errors = array();
 $booking = null;
 $edit = array_key_exists('id', $_GET);
+
+$flightNames = [ '', 'glider', 'Helicopter sightseeing'];
 if ($edit) {
-        $dao =new BookingDao();
+    $dao = new BookingDao();
     $booking = Utils::getObjByGetId($dao);
 } else {
     // set defaults
-
     $booking = new Booking();
     $booking->setFlightName('');
     $flightDate = new DateTime("+1 day");
     $flightDate->setTime(0, 0, 0);
     $booking->setFlightDate($flightDate);
     $booking->setStatus('pending');
-    $userId = 1; //hard code as we don't have a logged in user yet.
-    $booking->setUserId($user_id);
-    
+    $userId = 1;//hard-coded because we don't have a logged in user yet
+    $booking->setUserId($userId);
 }
-
 //if (array_key_exists('cancel', $_POST)) {
 //    // redirect
-//    Utils::redirect('detail', array('id' => $booking->getId()));} else
+//    Utils::redirect('detail', array('id' => $booking->getId()));
+//} 
+//else
     if (array_key_exists('save', $_POST)) {
-//     for security reasons, do not map the whole $_POST['todo']
+    // for security reasons, do not map the whole $_POST['todo']
     $data = array(
         'flight_name' => $_POST['booking']['flight_name'],
-        'flight_date' => $_POST['booking']['flight_date'] 
-//            . ' ' . $_POST['booking']['due_on_hour'] . ':' . $_POST['todo']['due_on_minute'] . ':00',
-
+        'flight_date' => $_POST['booking']['flight_date'] . ' 00:00:00'
     );
-   
     // map
     BookingMapper::map($booking, $data);
     // validate
-//    $errors = TodoValidator::validate($booking);
+    $errors = BookingValidator::validate($booking);
     // validate
     if (empty($errors)) {
         // save
@@ -89,6 +82,6 @@ if ($edit) {
         $booking = $dao->save($booking);
         Flash::addFlash('Booking saved successfully.');
         // redirect
-      Utils::redirect('list', array('module'=>'booking'));
+        Utils::redirect('list', array('module' => 'booking'));
     }
 }

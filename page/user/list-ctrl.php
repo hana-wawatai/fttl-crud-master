@@ -40,8 +40,17 @@
  *
  * Portions Copyrighted 2011 Sun Microsystems, Inc.
  */
-$headTemplate = new HeadTemplate('User details | Fly to the Limit', 'User details');
+
+$headTemplate = new HeadTemplate('User list | Fly to the Limit', 'List of Users');
+
+//$status = Utils::getUrlParam('status');
+//TodoValidator::validateStatus($status);
+
+$dao = new UserDao();
+//$search = new TodoSearchCriteria();
+//$search->setStatus($status);
 
 // data for template
-$user = Utils::getTodoByGetId();
-$tooLate = $user->getStatus() == Booking::STATUS_PENDING && $user->getDueOn() < new DateTime();
+//$title = Utils::capitalize($status) . ' TODOs';
+$sql = 'SELECT * FROM users WHERE status !="deleted"';
+$users = $dao->find($sql);

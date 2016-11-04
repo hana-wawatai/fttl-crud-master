@@ -40,8 +40,15 @@
  *
  * Portions Copyrighted 2011 Sun Microsystems, Inc.
  */
-$headTemplate = new HeadTemplate('User details | Fly to the Limit', 'User details');
 
-// data for template
 $user = Utils::getTodoByGetId();
-$tooLate = $user->getStatus() == Booking::STATUS_PENDING && $user->getDueOn() < new DateTime();
+$user->setStatus(Utils::getUrlParam('status'));
+if (array_key_exists('comment', $_POST)) {
+    $user->setComment($_POST['comment']);
+}
+
+$dao = new TodoDao();
+$dao->save($user);
+Flash::addFlash('TODO status changed successfully.');
+
+Utils::redirect('detail', array('id' => $user->getId()));

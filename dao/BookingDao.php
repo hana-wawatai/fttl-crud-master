@@ -1,21 +1,16 @@
 <?php
-
 /**
  * Description of BookingDao
  *
- * @author richard_lovell
  */
 class BookingDao {
     
     /** @var PDO */
     private $db = null;
-
-
     public function __destruct() {
         // close db connection
         $this->db = null;
     }
-
     /**
      * Find all {@link Booking}s by search criteria.
      * @return array array of {@link Booking}s
@@ -29,13 +24,12 @@ class BookingDao {
         }
         return $result;
     }
-
     /**
      * Find {@link Todo} by identifier.
      * @return Todo Todo or <i>null</i> if not found
      */
     public function findById($id) {
-        $row = $this->query('SELECT * FROM bookings WHERE status !="deleted" and id = ' . (int) $id)->fetch();
+        $row = $this->query('SELECT * FROM bookings WHERE status != "deleted" and id = ' . (int) $id)->fetch();
         if (!$row) {
             return null;
         }
@@ -43,28 +37,25 @@ class BookingDao {
         BookingMapper::map($booking, $row);
         return $booking;
     }
-
     /**
-     * Save {@link Todo}.
-     * @param ToDo $booking {@link Todo} to be saved
-     * @return Todo saved {@link Todo} instance
+     * Save {@link Booking}.
+     * @param Booking $booking {@link Booking} to be saved
+     * @return Booking saved {@link Booking} instance
      */
-    public function save(booking $booking) {
+    public function save(Booking $booking) {
         if ($booking->getId() === null) {
             return $this->insert($booking);
         }
         return $this->update($booking);
     }
-
     /**
-     * Delete {@link Todo} by identifier.
-     * @param int $id {@link Todo} identifier
+     * Delete {@link Booking} by identifier.
+     * @param int $id {@link Booking} identifier
      * @return bool <i>true</i> on success, <i>false</i> otherwise
      */
     public function delete($id) {
         $sql = '
             UPDATE bookings SET
-         
                 status = :status
             WHERE
                 id = :id';
@@ -75,7 +66,6 @@ class BookingDao {
         ));
         return $statement->rowCount() == 1;
     }
-
     /**
      * @return PDO
      */
@@ -91,9 +81,8 @@ class BookingDao {
         }
         return $this->db;
     }
-
 //    private function getFindSql(TodoSearchCriteria $search = null) {
-//        $sql = 'SELECT * FROM $booking WHERE deleted = 0 ';
+//        $sql = 'SELECT * FROM todo WHERE deleted = 0 ';
 //        $orderBy = ' priority, due_on';
 //        if ($search !== null) {
 //            if ($search->getStatus() !== null) {
@@ -114,44 +103,39 @@ class BookingDao {
 //        $sql .= ' ORDER BY ' . $orderBy;
 //        return $sql;
 //    }
-
     /**
-     * @return Todo
+     * @return Booking
      * @throws Exception
      */
     private function insert(Booking $booking) {
         $now = new DateTime();
         $booking->setId(null);
-   $booking->setStatus('pending');
+        $booking->setStatus('pending');
         $sql = '
             INSERT INTO bookings (id, flight_name, flight_date, status, user_id)
                 VALUES (:id, :flight_name, :flight_date, :status, :user_id)';
         return $this->execute($sql, $booking);
     }
-
     /**
      * @return Todo
      * @throws Exception
      */
-//    private function update(Todo $booking) {
-//        $booking->setLastModifiedOn(new DateTime());
-//        $sql = '
-//            UPDATE $booking SET
-//                priority = :priority,
-//                last_modified_on = :last_modified_on,
-//                due_on = :due_on,
-//                title = :title,
-//                description = :description,
-//                comment = :comment,
-//                status = :status,
-//                deleted = :deleted
-//            WHERE
-//                id = :id';
-//        return $this->execute($sql, $booking);
-//    }
-
+    private function update(Booking $booking) {
+        $sql = '
+            UPDATE bookings SET
+                flight_name = :flight_name,
+                flight_date = :flight_date,
+                status = :status,
+                user_id = :user_id
+            WHERE
+                id = :id';
+        
+//        var_dump($booking);
+//        die();
+        return $this->execute($sql, $booking);
+    }
     /**
-     * @return Todo
+     * @return Booking
      * @throws Exception
      */
     private function execute($sql, Booking $booking) {
@@ -160,31 +144,31 @@ class BookingDao {
         if (!$booking->getId()) {
             return $this->findById($this->getDb()->lastInsertId());
         }
-        if (!$statement->rowCount()) {
-            throw new NotFoundException('Booking with ID "' . $booking->getId() . '" does not exist.');
-        }
+//        if (!$statement->rowCount()) {
+//            throw new NotFoundException('Booking with ID "' . $booking->getId() . '" does not exist.');
+//        }
         return $booking;
     }
-
     private function getParams(Booking $booking) {
-//     (:id, :flight_name, :date_created, :flight_date, :status, :user_id)   
-        
+        //:id,:flight_name, :flight_date, :date_created, :status, :user_id
         $params = array(
             ':id' => $booking->getId(),
             ':flight_name' => $booking->getFlightName(),
             ':flight_date' => self::formatDateTime($booking->getFlightDate()),
             ':status' => $booking->getStatus(),
-            ':deleted' => $booking->getDeleted(),
+            ':user_id' => $booking->getUserId()
         );
+//        var_dump($params);
+//        echo '<br>';
+//        var_dump($booking);
+//        die();
         return $params;
     }
-
     private function executeStatement(PDOStatement $statement, array $params) {
         if (!$statement->execute($params)) {
             self::throwDbError($this->getDb()->errorInfo());
         }
     }
-
     /**
      * @return PDOStatement
      */
@@ -195,12 +179,10 @@ class BookingDao {
         }
         return $statement;
     }
-
     private static function throwDbError(array $errorInfo) {
         // TODO log error, send email, etc.
         throw new Exception('DB error [' . $errorInfo[0] . ', ' . $errorInfo[1] . ']: ' . $errorInfo[2]);
     }
-
     private static function formatDateTime(DateTime $date) {
         return $date->format(DateTime::ISO8601);
     }

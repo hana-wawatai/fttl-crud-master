@@ -45,39 +45,23 @@
  * Validator for {@link Todo}.
  * @see TodoMapper
  */
-final class TodoValidator {
+final class UserValidator {
 
     private function __construct() {
     }
 
     /**
-     * Validate the given {@link Todo} instance.
-     * @param Booking $todo {@link Todo} instance to be validated
+     * Validate the given {@link Booking} instance.
+     * @param Booking $user {@link Booking} instance to be validated
      * @return array array of {@link Error} s
      */
-    public static function validate(Booking $todo) {
+    public static function validate(User $user) {
         $errors = array();
-        if (!$todo->getCreatedOn()) {
-            $errors[] = new Error('createdOn', 'Empty or invalid Created On.');
+        if (!$user->getFlightName()) {
+            $errors[] = new Error('fisrt_name', 'Empty or invalid First Name.');
         }
-        if (!$todo->getLastModifiedOn()) {
-            $errors[] = new Error('lastModifiedOn', 'Empty or invalid Last Modified On.');
-        }
-        if (!trim($todo->getTitle())) {
-            $errors[] = new Error('title', 'Title cannot be empty.');
-        }
-        if (!$todo->getDueOn()) {
-            $errors[] = new Error('dueOn', 'Empty or invalid Due On.');
-        }
-        if (!trim($todo->getPriority())) {
-            $errors[] = new Error('priority', 'Priority cannot be empty.');
-        } elseif (!self::isValidPriority($todo->getPriority())) {
-            $errors[] = new Error('priority', 'Invalid Priority set.');
-        }
-        if (!trim($todo->getStatus())) {
-            $errors[] = new Error('status', 'Status cannot be empty.');
-        } elseif (!self::isValidStatus($todo->getStatus())) {
-            $errors[] = new Error('status', 'Invalid Status set.');
+        if (!$user->getFlightDate()) {
+            $errors[] = new Error('last_name', 'Empty or invalid Last Name.');
         }
         return $errors;
     }
@@ -105,11 +89,11 @@ final class TodoValidator {
     }
 
     private static function isValidStatus($status) {
-        return in_array($status, Booking::allStatuses());
+        return in_array($status, User::allStatuses());
     }
 
     private static function isValidPriority($priority) {
-        return in_array($priority, Booking::allPriorities());
+        return in_array($priority, User::allPriorities());
     }
 
 }

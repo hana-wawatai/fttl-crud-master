@@ -1,8 +1,7 @@
 <?php
 /**
  * Description of BookingMapper
- *
- * @author richard_lovell
+
  */
 class BookingMapper {
     
@@ -35,7 +34,7 @@ class BookingMapper {
         }
         
         if (array_key_exists('status', $properties)) {
-            $booking->setUserId($properties['status']);
+            $booking->setStatus($properties['status']);
         }
         if (array_key_exists('user_id', $properties)) {
             $booking->setUserId($properties['user_id']);

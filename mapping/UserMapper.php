@@ -2,8 +2,7 @@
 
 /**
  * Description of UserMapper
- *
- * @author richard_lovell
+ 
  */
 class UserMapper {
     private function __construct() {
@@ -30,5 +29,9 @@ class UserMapper {
         if (array_key_exists('password', $properties)) {
             $user->setPassword($properties['password']);
         }
+        if (array_key_exists('status', $properties)) {
+            $user->setStatus($properties['status']);
+        }
     }
 }
+
